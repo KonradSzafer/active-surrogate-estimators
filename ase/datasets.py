@@ -20,8 +20,8 @@ import torch
 from torch._C import Value
 from torch.distributions.multivariate_normal import MultivariateNormal
 
-from ase.utils.data import (
-    to_json, get_root, array_reduce)
+from ase.utils.data import to_json, get_root, array_reduce
+from ase.custom_datasets import load_dataset
 
 
 class _Dataset:
@@ -44,6 +44,11 @@ class _Dataset:
 
         self.N = cfg.n_points
         self.x, self.y = self.generate_data()
+        assert self.x.ndim == 2
+        assert self.y.ndim == 1
+        print('-'*100)
+        print('dataset shape:', self.x.shape, self.y.shape)
+        print('-'*100)
 
         # For 1D data, ensure Nx1 shape
         if self.x.ndim == 1:
@@ -299,6 +304,81 @@ class _ActiveTestingDataset(_Dataset):
             for i in range(2)]
 
         return total_observed
+
+
+class OpenMLDataset(_ActiveTestingDataset): 
+
+    def __init__(self, cfg, n_classes=2, *args, **kwargs):
+        cfg = OmegaConf.merge(
+            OmegaConf.structured(cfg),
+            dict(task_type='classification', global_std=True, n_classes=n_classes)
+        )
+        super().__init__(cfg)
+
+    def generate_data(self):
+        x, y = load_openml_dataset(1510)
+        return self.preprocess(data=(x, y))
+
+    def preprocess(self, data):
+        x, y = data
+        x = x.reshape(x.shape[0], -1)
+        y = y.astype(np.int)
+        # # only if using part of the dataset
+        # N = self.N
+        # if (N < y.size) and not self.cfg.get('with_unseen', False):
+        #     logging.info('Keeping only a subset of the input data.')
+        #     # get a stratified subset
+        #     # note that mnist does not have equal class count
+        #     # want to keep full data for unseeen
+        #     idxs, _ = SKtrain_test_split(
+        #         np.arange(0, y.size), train_size=N, stratify=y)
+        #     x = x[idxs]
+        #     y = y[idxs]
+        return x, y
+
+    def train_test_split(self, N):
+
+        if self.cfg.get('respect_train_test', False):
+            # use full train set, subsample from original test set
+            train_lim = self.cfg.get('train_limit', 50000)
+            train = np.arange(0, train_lim)
+
+            n_test = round(self.cfg.test_proportion * N)
+            print('test size:', n_test)
+            max_test = 60e3 - train_lim
+            if n_test <= max_test:
+
+                replace = self.cfg.get('test_with_replacement', False)
+
+                test = np.random.choice(
+                    np.arange(train_lim, 60000), n_test, replace=replace)
+                test = np.sort(test)
+            else:
+                raise ValueError
+
+            self.test_unseen_idxs = np.setdiff1d(
+                np.arange(train_lim, 60000), test)
+
+            return train, test
+
+        else:
+            train, test = super().train_test_split(N)
+
+        # only keep the first n sevens in the train distribution
+        if n7 := self.cfg.get('n_initial_7', False):
+            # to get correct indices, need to first select from y
+            old7 = np.where(self.y == 7)[0]
+            # then filter to train indicees
+            old_train7 = np.intersect1d(old7, train)
+            # now only keep the first n7
+            sevens_remove = old_train7[n7:]
+            # and now remove those from the train set
+            train = np.setdiff1d(train, sevens_remove)
+
+        print('-'*100)
+        print('train shape: ', train.shape, 'test shape: ', test.shape)
+        print('-'*100)
+        return train, test
 
 
 class MNISTDataset(_ActiveTestingDataset):
