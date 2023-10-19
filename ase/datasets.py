@@ -86,7 +86,7 @@ class _Dataset:
             test_size = self.cfg.test_proportion
 
         if test_size == 1:
-            train = np.array([]).astype(np.int)
+            train = np.array([]).astype(int)
             test = all_indices
         else:
             train, test = SKtrain_test_split(
@@ -274,7 +274,7 @@ class _ActiveTestingDataset(_Dataset):
         self.start()
 
     def start(self):
-        self.test_observed = np.array([], dtype=np.int)
+        self.test_observed = np.array([], dtype=int)
         self.test_remaining = self.test_idxs
 
     def restart(self, *args):
@@ -322,7 +322,7 @@ class OpenMLDataset(_ActiveTestingDataset):
     def preprocess(self, data):
         x, y = data
         x = x.reshape(x.shape[0], -1)
-        y = y.astype(np.int)
+        y = y.astype(int)
         # # only if using part of the dataset
         # N = self.N
         # if (N < y.size) and not self.cfg.get('with_unseen', False):
@@ -433,7 +433,7 @@ class MNISTDataset(_ActiveTestingDataset):
         x = x.astype(np.float32) / 255
         x = x.reshape(x.shape[0], -1)
         y = np.concatenate([y_train, y_test], 0)
-        y = y.astype(np.int)
+        y = y.astype(int)
 
         N = self.N
 
