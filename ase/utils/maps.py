@@ -4,6 +4,7 @@ from ase.models import (
     WideResNet, ResNet18Ensemble, ResNet34Ensemble, ResNet50Ensemble,
     ResNet101Ensemble, WideResNetEnsemble)
 from ase.datasets import (
+    OpenMLDataset,
     MNISTDataset, FashionMNISTDataset,
     Cifar10Dataset, Cifar100Dataset)
 from ase.acquisition import (
@@ -42,6 +43,7 @@ model = dict(
 )
 
 dataset = dict(
+    OpenMLDataset=OpenMLDataset,
     MNISTDataset=MNISTDataset,
     FashionMNISTDataset=FashionMNISTDataset,
     Cifar10Dataset=Cifar10Dataset,

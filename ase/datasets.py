@@ -1,18 +1,21 @@
 """Datasets for active testing."""
-import time
 import os
-from copy import deepcopy
+import time
+import json
+import pickle
 import warnings
 import logging
-import pickle
 from pathlib import Path
-from numpy.lib.arraypad import _round_if_needed
-from omegaconf import OmegaConf, DictConfig
-import hydra
-from pathos.pools import _ProcessPool as Pool
+from copy import deepcopy
 
 import math
 import numpy as np
+import pandas as pd
+from numpy.lib.arraypad import _round_if_needed
+import hydra
+from omegaconf import OmegaConf, DictConfig
+from pathos.pools import _ProcessPool as Pool
+
 from sklearn.model_selection import train_test_split as SKtrain_test_split
 from scipy.stats import multivariate_normal
 
@@ -21,7 +24,6 @@ from torch._C import Value
 from torch.distributions.multivariate_normal import MultivariateNormal
 
 from ase.utils.data import to_json, get_root, array_reduce
-from ase.custom_datasets import load_dataset
 
 
 class _Dataset:
@@ -46,9 +48,6 @@ class _Dataset:
         self.x, self.y = self.generate_data()
         assert self.x.ndim == 2
         assert self.y.ndim == 1
-        print('-'*100)
-        print('dataset shape:', self.x.shape, self.y.shape)
-        print('-'*100)
 
         # For 1D data, ensure Nx1 shape
         if self.x.ndim == 1:
@@ -56,7 +55,10 @@ class _Dataset:
 
         self.D = self.x.shape[1:]
 
-        self.train_idxs, self.test_idxs = self.train_test_split(self.N)
+        # self.train_idxs, self.test_idxs = self.train_test_split(self.N)
+        self.train_idxs = np.array([]).astype(int)
+        self.test_idxs = np.arange(self.N)
+
         self.x_test = self.x[self.test_idxs]
 
         to_json(
@@ -315,26 +317,32 @@ class OpenMLDataset(_ActiveTestingDataset):
         )
         super().__init__(cfg)
 
-    def generate_data(self):
-        x, y = load_openml_dataset(1510)
-        return self.preprocess(data=(x, y))
 
-    def preprocess(self, data):
-        x, y = data
-        x = x.reshape(x.shape[0], -1)
-        y = y.astype(int)
-        # # only if using part of the dataset
-        # N = self.N
-        # if (N < y.size) and not self.cfg.get('with_unseen', False):
-        #     logging.info('Keeping only a subset of the input data.')
-        #     # get a stratified subset
-        #     # note that mnist does not have equal class count
-        #     # want to keep full data for unseeen
-        #     idxs, _ = SKtrain_test_split(
-        #         np.arange(0, y.size), train_size=N, stratify=y)
-        #     x = x[idxs]
-        #     y = y[idxs]
-        return x, y
+    def generate_data(self):
+        dataset_id = 1510
+        datasets_path = str(Path.cwd().parent.parent) + '/datasets/'
+        train_df = pd.read_csv(datasets_path + f'{dataset_id}-train.csv')
+        test_df = pd.read_csv(datasets_path + f'{dataset_id}-test.csv')
+        with open(datasets_path + f'{dataset_id}-stats.json', 'r') as f:
+            stats = json.load(f)
+
+        self.train_df = train_df
+        self.test_df = test_df
+        self.stats = stats
+
+        self.train_predictions = train_df[['Y_prob']].to_numpy()[:, 0]
+        self.train_predictions = np.column_stack((1-self.train_predictions, self.train_predictions))
+        self.train_predictions_labels = train_df[['Y_pred']].to_numpy()[:, 0]
+        self.test_predictions = test_df[['Y_prob']].to_numpy()[:, 0]
+        self.test_predictions = np.column_stack((1-self.test_predictions, self.test_predictions))
+        self.test_predictions_labels = test_df[['Y_pred']].to_numpy()[:, 0]
+        self.train_labels = train_df[['Y']].to_numpy()[:, 0]
+        self.test_labels = test_df[['Y']].to_numpy()[:, 0]
+
+        X_test = test_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
+        Y_test = test_df[['Y']].to_numpy()[:, 0]
+        return X_test, Y_test
+
 
     def train_test_split(self, N):
 
@@ -544,6 +552,8 @@ class Cifar10Dataset(MNISTDataset):
         x, y = self.preprocess(data)
         x = x.reshape(len(x), 32, 32, 3).transpose(0, 3, 1, 2)
         x = x.reshape(len(x), -1)
+        print(x.shape)
+        print(y[:, 0].shape)
         return x, y[:, 0]
 
 
