@@ -33,7 +33,7 @@ class Hoover:
         if self.results is None:
             self.results = export
         else:
-            self.results = self.results.append(export, ignore_index=True)
+            self.results = pd.concat([self.results, export], ignore_index=True)
 
         if all_pmfs is not None:
             self.pmfs[run][acquisition] = all_pmfs

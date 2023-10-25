@@ -18,13 +18,14 @@ experiment:
   random_seed: -1
   debug: false
   save_data_until: 10
-  loss: CrossEntropyLoss
+  loss: BalancedAccuracyLoss
+  # loss: CrossEntropyLoss
   log_every: 1
   save_every: 5
   abort_test_after: 1000
 risk_estimators:
 - TrueRiskEstimator
-# - BiasedRiskEstimator
+- BiasedRiskEstimator
 # - FancyUnbiasedRiskEstimator
 # - QuadratureRiskEstimator
 # - TrueUnseenRiskEstimator
@@ -32,7 +33,7 @@ acquisition_functions:
 - TrueLossAcquisition: null
 - RandomAcquisition: null
 - ClassifierAcquisitionEntropy: null
-- AnySurrogateAcquisitionEntropy: LazySurrEnsemble
+# - AnySurrogateAcquisitionEntropy: LazySurrEnsemble
 acquisition:
   sample: true
   animate: true
@@ -48,16 +49,12 @@ acquisition:
   - 700
 model:
   keep_constant: true
-  name: WideResNet
+  name: SKLearnModel
   efficient: true
   calibrated: true
   skip_fit_debug: model.pth
   skip_fit_debug_relative: true
   save_path: model.pth
-  data_CHW:
-  - 3
-  - 32
-  - 32
   num_classes: 100
   debug_mnist: false
   training_cfg:
@@ -78,18 +75,14 @@ model:
 acquisition_configs:
   LazySurrEnsemble:
     keep_constant: true
-    name: WideResNetEnsemble
+    name: SKLearnModel
     calibrated: true
     n_models: 10
     efficient: true
     save_path: ensembles/model_{}.pth
     skip_fit_debug: ensembles/model_{}.pth
     skip_fit_debug_relative: true
-    data_CHW:
-    - 3
-    - 32
-    - 32
-    num_classes: 100
+    num_classes: 2
     debug_mnist: false
     lazy: true
     lazy_schedule: []

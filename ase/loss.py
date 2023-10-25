@@ -2,6 +2,7 @@
 
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import balanced_accuracy_score
 
 
 class SELoss:
@@ -46,6 +47,20 @@ class AccuracyLoss:
         return 1. - (np.argmax(pred, axis=1) == target).astype(np.float)
 
 
+class BalancedAccuracy:
+    def __call__(self, pred, target):
+        pred = np.argmax(pred, axis=1)
+        balanced_accuracy = balanced_accuracy_score(target, pred)
+        return balanced_accuracy
+
+
+class BalancedAccuracyLoss:
+    def __call__(self, pred, target):
+        pred = np.argmax(pred, axis=1)
+        balanced_accuracy = balanced_accuracy_score(target, pred)
+        return 1 - balanced_accuracy
+
+
 class CrossEntropyLoss:
 
     enc = None
@@ -61,7 +76,7 @@ class CrossEntropyLoss:
 
         # One-Hot Encode
         if CrossEntropyLoss.enc is None:
-            CrossEntropyLoss.enc = OneHotEncoder(sparse=False)
+            CrossEntropyLoss.enc = OneHotEncoder(sparse_output=False)
             CrossEntropyLoss.enc.fit(
                 np.arange(0, pred.shape[1])[..., np.newaxis])
 

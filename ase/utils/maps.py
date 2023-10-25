@@ -1,5 +1,6 @@
 """Map strings to classes."""
 from ase.models import (
+    SKLearnModel,
     RadialBNN, TinyRadialBNN, ResNet18,
     WideResNet, ResNet18Ensemble, ResNet34Ensemble, ResNet50Ensemble,
     ResNet101Ensemble, WideResNetEnsemble)
@@ -18,6 +19,7 @@ from ase.acquisition import (
     SelfSurrogateAcquisitionSurrogateWeightedBALD2,
     )
 from ase.loss import (
+    BalancedAccuracy, BalancedAccuracyLoss,
     SELoss, MSELoss, RMSELoss, CrossEntropyLoss, AccuracyLoss, YIsLoss)
 
 from ase.risk_estimators import (
@@ -31,6 +33,7 @@ from ase.risk_estimators import (
 
 
 model = dict(
+    SKLearnModel=SKLearnModel,
     RadialBNN=RadialBNN,
     TinyRadialBNN=TinyRadialBNN,
     ResNet18=ResNet18,
@@ -67,6 +70,8 @@ acquisition = dict(
 )
 
 loss = dict(
+    BalancedAccuracy=BalancedAccuracy,
+    BalancedAccuracyLoss=BalancedAccuracyLoss,
     SELoss=SELoss,
     MSELoss=MSELoss,
     RMSELoss=RMSELoss,
