@@ -3,11 +3,13 @@ from ase.models import (
     SKLearnModel,
     RadialBNN, TinyRadialBNN, ResNet18,
     WideResNet, ResNet18Ensemble, ResNet34Ensemble, ResNet50Ensemble,
-    ResNet101Ensemble, WideResNetEnsemble)
+    ResNet101Ensemble, WideResNetEnsemble
+)
 from ase.datasets import (
     OpenMLDataset,
     MNISTDataset, FashionMNISTDataset,
-    Cifar10Dataset, Cifar100Dataset)
+    Cifar10Dataset, Cifar100Dataset
+)
 from ase.acquisition import (
     RandomAcquisition, TrueLossAcquisition,
     ClassifierAcquisitionEntropy,
@@ -17,11 +19,11 @@ from ase.acquisition import (
     AnySurrogateAcquisitionEntropy,
     SelfSurrogateAcquisitionSurrogateMI,
     SelfSurrogateAcquisitionSurrogateWeightedBALD2,
-    )
+)
 from ase.loss import (
-    BalancedAccuracy, BalancedAccuracyLoss,
-    SELoss, MSELoss, RMSELoss, CrossEntropyLoss, AccuracyLoss, YIsLoss)
-
+    TPRLoss, FPRLoss, BalancedAccuracy, BalancedAccuracyLoss,
+    SELoss, MSELoss, RMSELoss, CrossEntropyLoss, AccuracyLoss, YIsLoss
+)
 from ase.risk_estimators import (
     BiasedRiskEstimator, NaiveUnbiasedRiskEstimator,
     FancyUnbiasedRiskEstimator, TrueRiskEstimator,
@@ -29,7 +31,7 @@ from ase.risk_estimators import (
     QuadratureRiskEstimator,
     ExactExpectedRiskEstimator,
     FullSurrogateASMC,
-    )
+)
 
 
 model = dict(
@@ -70,6 +72,8 @@ acquisition = dict(
 )
 
 loss = dict(
+    TPRLoss=TPRLoss,
+    FPRLoss=FPRLoss,
     BalancedAccuracy=BalancedAccuracy,
     BalancedAccuracyLoss=BalancedAccuracyLoss,
     SELoss=SELoss,

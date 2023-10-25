@@ -7,17 +7,17 @@ hoover:
   save_data: false
 dataset:
   test_proportion: 0.3
-  # n_points: 60000
   standardize: false
   name: OpenMLDataset
+  dataset_id: 1510
   respect_train_test: true
-  # train_limit: 40000
   # with_unseen: true
 experiment:
   n_runs: 1
   random_seed: -1
   debug: false
   save_data_until: 10
+  # loss: TPRLoss
   loss: BalancedAccuracyLoss
   # loss: CrossEntropyLoss
   log_every: 1
@@ -55,8 +55,7 @@ model:
   skip_fit_debug: model.pth
   skip_fit_debug_relative: true
   save_path: model.pth
-  num_classes: 100
-  debug_mnist: false
+  num_classes: 2
   training_cfg:
     validation_set_size: 5000
     stratify_val: true

@@ -47,6 +47,34 @@ class AccuracyLoss:
         return 1. - (np.argmax(pred, axis=1) == target).astype(np.float)
 
 
+class TPRLoss:
+    def __call__(self, pred, target):
+        pred = np.argmax(pred, axis=1)
+        TP = 0
+        FN = 0
+        for i in range(len(target)):
+            if target[i] == 1 and pred[i] == 1:
+                TP += 1
+            elif target[i] == 1 and pred[i] == 0:
+                FN += 1
+        TPR = TP / (TP + FN) if (TP + FN) > 0 else 0.0
+        return TPR
+
+
+class FPRLoss:
+    def __call__(self, pred, target):
+        pred = np.argmax(pred, axis=1)
+        FP = 0
+        TN = 0
+        for i in range(len(target)):
+            if target[i] == 0 and pred[i] == 1:
+                FP += 1
+            elif target[i] == 0 and pred[i] == 0:
+                TN += 1
+        FPR = FP / (FP + TN) if (FP + TN) > 0 else 0.0
+        return FPR
+
+
 class BalancedAccuracy:
     def __call__(self, pred, target):
         pred = np.argmax(pred, axis=1)
