@@ -319,11 +319,10 @@ class OpenMLDataset(_ActiveTestingDataset):
 
 
     def generate_data(self):
-        dataset_id = 1510
         datasets_path = str(Path.cwd().parent.parent) + '/datasets/'
-        train_df = pd.read_csv(datasets_path + f'{dataset_id}-train.csv')
-        test_df = pd.read_csv(datasets_path + f'{dataset_id}-test.csv')
-        with open(datasets_path + f'{dataset_id}-stats.json', 'r') as f:
+        train_df = pd.read_csv(datasets_path + f'{self.cfg.dataset_id}-train.csv')
+        test_df = pd.read_csv(datasets_path + f'{self.cfg.dataset_id}-test.csv')
+        with open(datasets_path + f'{self.cfg.dataset_id}-stats.json', 'r') as f:
             stats = json.load(f)
 
         self.train_df = train_df
@@ -338,6 +337,9 @@ class OpenMLDataset(_ActiveTestingDataset):
         self.test_predictions_labels = test_df[['Y_pred']].to_numpy()[:, 0]
         self.train_labels = train_df[['Y']].to_numpy()[:, 0]
         self.test_labels = test_df[['Y']].to_numpy()[:, 0]
+
+        self.X_train = train_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()[:5]
+        self.Y_train = train_df[['Y']].to_numpy()[:, 0][:5]
 
         X_test = test_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
         Y_test = test_df[['Y']].to_numpy()[:, 0]
