@@ -330,6 +330,9 @@ class OpenMLDataset(_ActiveTestingDataset):
         self.test_df = test_df
         self.stats = stats
 
+        self.N = len(test_df)
+        self.test_idxs = np.arange(0, self.N)
+
         # train x y arrays
         self.X_train = train_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
         self.Y_train = train_df[['Y']].to_numpy()[:, 0]

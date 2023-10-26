@@ -89,21 +89,6 @@ def main(cfg):
                 stats['loss'] = train_loss
                 to_json(stats, 'stats.json')
 
-        # Always predict on test data again
-        # TODO: need to fix this for efficient prediction
-        # if cfg.model.get('efficient', False):
-        #     logging.debug('Eficient prediction on test set.')
-        #     model = make_efficient(model, dataset)
-
-        # if cfg.experiment.debug:
-            # Report train error
-            # logging.info('Model train error:')
-            # model.performance(
-            #     *dataset.train_data, dataset.cfg.task_type)
-
-        # if not check_valid(model, dataset):
-            # continue
-
         if run < cfg.experiment.save_data_until:
             hoover.add_data(run, dataset.export())
 

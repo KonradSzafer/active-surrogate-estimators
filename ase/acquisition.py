@@ -191,9 +191,9 @@ class _LossAcquisitionBase(AcquisitionFunction):
             logging.info(f'{expected_loss}')
             expected_loss = np.nan_to_num(expected_loss, nan=0)
 
-        # this might fail for expected_loss.sum() == 0
-        if expected_loss.sum() != 1:
-            expected_loss = expected_loss / expected_loss.sum()
+        # # this might fail for expected_loss.sum() == 0
+        # if expected_loss.sum() != 1:
+        #     expected_loss = expected_loss / expected_loss.sum()
 
         if self.cfg.get('uniform_clip', False):
             # clip all values less than 10 percent of uniform propability
@@ -506,13 +506,14 @@ def entropy_loss(
     else:
         surr_model_pred = model_pred
 
-    if T is None:
-        model_pred = np.clip(model_pred, eps, 1 - eps)
-        model_pred /= model_pred.sum(axis=1, keepdims=True)
+    # if T is None:
+    #     model_pred = np.clip(model_pred, eps, 1 - eps)
+    #     print('model pred:', model_pred)
+    #     model_pred /= model_pred.sum(axis=1, keepdims=True)
 
     # Sum_{y=c} p_surr(y=c|x) log p_model(y=c|x)
     if not extra_log:
-        res = -1 * (surr_model_pred * np.log(model_pred)).sum(-1)
+        res = -1 * (surr_model_pred * np.log(model_pred + eps)).sum(-1)
     else:
         raise NotImplementedError('Not sure what this should look like')
         res = -1 * (surr_model_pred * np.log(model_pred)).sum(-1)
