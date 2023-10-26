@@ -315,14 +315,15 @@ class OpenMLDataset(_ActiveTestingDataset):
             OmegaConf.structured(cfg),
             dict(task_type='classification', global_std=True, n_classes=n_classes)
         )
+        self.dataset_id = cfg.dataset_id
         super().__init__(cfg)
 
 
     def generate_data(self):
         datasets_path = str(Path.cwd().parent.parent) + '/datasets/'
-        train_df = pd.read_csv(datasets_path + f'{self.cfg.dataset_id}-train.csv')
-        test_df = pd.read_csv(datasets_path + f'{self.cfg.dataset_id}-test.csv')
-        with open(datasets_path + f'{self.cfg.dataset_id}-stats.json', 'r') as f:
+        train_df = pd.read_csv(datasets_path + f'{self.dataset_id}-train.csv')
+        test_df = pd.read_csv(datasets_path + f'{self.dataset_id}-test.csv')
+        with open(datasets_path + f'{self.dataset_id}-stats.json', 'r') as f:
             stats = json.load(f)
 
         # dataframes
