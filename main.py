@@ -77,27 +77,23 @@ def main(cfg):
         # Train model on training data.
         if (not cfg.model.get('keep_constant', False)) or (model is None):
             model = maps.model[cfg.model.name](cfg.model)
-            model.fit(*dataset.train_data)
+            model.fit(dataset.X_train, dataset.Y_train)
 
-            loss = model.performance(
-                *dataset.test_data, dataset.cfg['task_type'])
-
-            if cfg.experiment.get('constant_val_set', False):
-                add_val_idxs_to_cfg(cfg, model.val_idxs)
+            loss_fun = maps.loss[cfg.experiment.loss]()
+            train_loss = loss_fun(dataset.Y_train_prob, dataset.Y_train)
+            test_loss = loss_fun(dataset.Y_test_prob, dataset.Y_test)
+            print(f'Train loss: {train_loss}, Test loss: {test_loss}')
 
             if not STATS_STATUS:
                 STATS_STATUS = True
-                stats['loss'] = loss
+                stats['loss'] = train_loss
                 to_json(stats, 'stats.json')
-            # test_data = model.make_loader(dataset.test_data, train=False)
-            # loss = model.evaluate(model.model, test_data)
-            # logging.info(f'Model test loss is {loss}.')
 
         # Always predict on test data again
         # TODO: need to fix this for efficient prediction
-        if cfg.model.get('efficient', False):
-            logging.debug('Eficient prediction on test set.')
-            model = make_efficient(model, dataset)
+        # if cfg.model.get('efficient', False):
+        #     logging.debug('Eficient prediction on test set.')
+        #     model = make_efficient(model, dataset)
 
         # if cfg.experiment.debug:
             # Report train error

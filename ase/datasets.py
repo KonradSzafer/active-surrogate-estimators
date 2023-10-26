@@ -325,25 +325,27 @@ class OpenMLDataset(_ActiveTestingDataset):
         with open(datasets_path + f'{self.cfg.dataset_id}-stats.json', 'r') as f:
             stats = json.load(f)
 
+        # dataframes
         self.train_df = train_df
         self.test_df = test_df
         self.stats = stats
 
-        self.train_predictions = train_df[['Y_prob']].to_numpy()[:, 0]
-        self.train_predictions = np.column_stack((1-self.train_predictions, self.train_predictions))
-        self.train_predictions_labels = train_df[['Y_pred']].to_numpy()[:, 0]
-        self.test_predictions = test_df[['Y_prob']].to_numpy()[:, 0]
-        self.test_predictions = np.column_stack((1-self.test_predictions, self.test_predictions))
-        self.test_predictions_labels = test_df[['Y_pred']].to_numpy()[:, 0]
-        self.train_labels = train_df[['Y']].to_numpy()[:, 0]
-        self.test_labels = test_df[['Y']].to_numpy()[:, 0]
+        # train x y arrays
+        self.X_train = train_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
+        self.Y_train = train_df[['Y']].to_numpy()[:, 0]
+        self.Y_train_pred = train_df[['Y_pred']].to_numpy()[:, 0]
+        self.Y_train_prob = train_df[['Y_prob']].to_numpy()[:, 0]
+        self.Y_train_prob = np.column_stack((1-self.Y_train_prob, self.Y_train_prob)) 
 
-        self.X_train = train_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()[:5]
-        self.Y_train = train_df[['Y']].to_numpy()[:, 0][:5]
+        # test x y arrays
+        self.X_test = test_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
+        self.Y_test = test_df[['Y']].to_numpy()[:, 0]
+        self.Y_test_pred = test_df[['Y_pred']].to_numpy()[:, 0]
+        self.Y_test_prob = test_df[['Y_prob']].to_numpy()[:, 0]
+        self.Y_test_prob = np.column_stack((1-self.Y_test_prob, self.Y_test_prob))
 
-        X_test = test_df.drop(['Y', 'Y_pred', 'Y_prob'], axis=1).to_numpy()
-        Y_test = test_df[['Y']].to_numpy()[:, 0]
-        return X_test, Y_test
+        print('train shape: ', self.X_train.shape, 'test shape: ', self.X_test.shape)
+        return self.X_test, self.Y_test
 
 
     def train_test_split(self, N):

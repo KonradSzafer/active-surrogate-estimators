@@ -15,7 +15,7 @@ dataset:
 experiment:
   n_runs: 1
   random_seed: -1
-  debug: false
+  debug: true
   save_data_until: 10
   # loss: TPRLoss
   loss: BalancedAccuracyLoss
