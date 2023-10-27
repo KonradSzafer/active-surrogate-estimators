@@ -6,8 +6,9 @@ import logging
 import hydra
 import warnings
 
-import numpy as np
 import torch
+import numpy as np
+import matplotlib.pyplot as plt
 
 from ase.experiment import Experiment
 from ase.utils import maps
@@ -58,18 +59,11 @@ def main(cfg):
     logging.info(f'Uniform clip val is {cfg.acquisition.uniform_clip}.')
 
     hoover = Hoover(cfg.hoover)
-
     model = None
 
-    # Right now this averages over both train and testing!
+    experiments = {} # run id -> experiment
     for run in range(cfg.experiment.n_runs):
-        if run % cfg.experiment.log_every == 0 or cfg.experiment.debug:
-            logging.info(f'Run {run} in {os.getcwd()} ****NEW RUN****')
-            if cuda := torch.cuda.is_available():
-                logging.info(f'Still using cuda: {cuda}.')
-            else:
-                logging.info('No cuda found!')
-                os.system('touch cuda_failure.txt')
+        logging.info(f'Run: {run}')
 
         dataset = maps.dataset[cfg.dataset.name](
             cfg.dataset, model_cfg=cfg.model)
@@ -109,32 +103,37 @@ def main(cfg):
             else:
                 acq_config = None
 
-            experiment = Experiment(
-                run, cfg, dataset, model, acquisition, acq_config)
+            experiment = Experiment(run, cfg, dataset, model, acquisition, acq_config)
 
-            i = 0
-            while not experiment.finished:
-                i += 1
-                # print('debug', i)
-                if cfg.experiment.debug:
-                    logging.info(
-                        f'\t Acquisition: {acquisition} – \t Step {i}.')
-
+            testset_size = len(dataset.Y_test)
+            for i in range(testset_size):
+                logging.info(f'\t Acquisition: {acquisition} – \t Step {i}/{testset_size}')
                 experiment.step(i)
 
-            # Add config to name for logging.
-            if (n := acq_cfg_name) is not None:
+            experiments[run] = experiment
+            # import matplotlib.pyplot as plt
+            # for k, v in experiment.estimated_risk.items():
+            #     plt.plot(v, label=k)
+            # plt.title(f'Active Testing - dataset ID: {dataset.dataset_id}, run: {run}')
+            # plt.legend()
+            # plt.show()
+
+            if (n := acq_cfg_name) is not None: # Add config to name for logging
                 acquisition = f'{acquisition}_{n}'
 
-            # Extract results from acquisition experiment
-            hoover.add_results(run, acquisition, experiment.export_data())
-
-        if run % cfg.experiment.get('save_every', 1e19) == 0:
-            logging.info('Intermediate save.')
-            hoover.save()
-
     logging.info('Completed all runs.')
-    hoover.save()
+
+    # average risk accross runs
+    average_risks = {k: np.zeros(len(v)) for k, v in experiments[0].estimated_risk.items()}
+    for ex in experiments.values():
+        for k, v in ex.estimated_risk.items():
+            average_risks[k] += np.array(v)
+
+    for k, v in average_risks.items():
+        plt.plot(v, label=k)
+    plt.title(f'Active Testing - dataset ID: {dataset.dataset_id}')
+    plt.legend()
+    plt.show()
 
 
 def check_valid(model, dataset):
