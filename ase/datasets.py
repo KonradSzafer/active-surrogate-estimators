@@ -326,8 +326,8 @@ class OpenMLDataset(_ActiveTestingDataset):
         with open(datasets_path + f'{self.dataset_id}-stats.json', 'r') as f:
             stats = json.load(f)
 
-        # dataframes
-        self.train_df = train_df
+        train_len = int(self.cfg.train_proportion * len(train_df))
+        self.train_df = train_df.sample(train_len)
         self.test_df = test_df
         self.stats = stats
 

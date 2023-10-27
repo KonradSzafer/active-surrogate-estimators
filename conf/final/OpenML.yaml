@@ -3,13 +3,13 @@ id: 1
 hydra:
   run:
     dir: ${BASE_DIR}/outputs/OpenML/
-hoover:
-  save_data: false
 dataset:
+  train_proportion: 0.1
   test_proportion: 0.3
   standardize: false
   name: OpenMLDataset
   dataset_id: 1510
+  # dataset_id: 1487
   respect_train_test: true
   # with_unseen: true
 experiment:
@@ -18,7 +18,8 @@ experiment:
   debug: true
   save_data_until: 10
   # loss: TPRLoss
-  loss: BalancedAccuracyLoss
+  loss: BalancedAccuracy
+  # loss: BalancedAccuracyLoss
   # loss: CrossEntropyLoss
   log_every: 1
   save_every: 5
@@ -26,13 +27,13 @@ experiment:
 risk_estimators:
 - TrueRiskEstimator
 - BiasedRiskEstimator
-# - FancyUnbiasedRiskEstimator
+- FancyUnbiasedRiskEstimator
 # - QuadratureRiskEstimator
 # - TrueUnseenRiskEstimator
 acquisition_functions:
-- TrueLossAcquisition: null
+# - TrueLossAcquisition: null
 - RandomAcquisition: null
-- ClassifierAcquisitionEntropy: null
+# - ClassifierAcquisitionEntropy: null
 # - AnySurrogateAcquisitionEntropy: LazySurrEnsemble
 acquisition:
   sample: true
