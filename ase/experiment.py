@@ -49,6 +49,11 @@ class Experiment:
         self.predictions = None
         self.novels = []
 
+        self.estimated_risk = {}
+        for risk_estimator in self.risk_estimators.values():
+            self.estimated_risk[str(risk_estimator.__class__.__name__)] = []
+
+
     def get_risk_estimators(self):
 
         risk_config = self.cfg.get('risk_configs', False)
@@ -74,16 +79,16 @@ class Experiment:
                     risk_cfg = (
                         risk_config.get(cfg_name)
                         if cfg_name is not None else None)
-                risk_estimators[risk_name] = maps.risk_estimator[
-                            risk_estimator](
-                        self.cfg.experiment.loss,
-                        self.dataset,
-                        self.model,
-                        risk_cfg=risk_cfg)
+                risk_estimators[risk_name] = maps.risk_estimator[risk_estimator](
+                    self.cfg.experiment.loss,
+                    self.dataset,
+                    self.model,
+                    risk_cfg=risk_cfg
+                )
 
         return risk_estimators
 
-    # # @profile
+
     def estimate_risks(self):
         """Estimate test risk."""
         pred = self.predictions
@@ -92,10 +97,20 @@ class Experiment:
         # For QuadratureRiskEstimator
         surr_model = getattr(self.acquisition, 'surr_model', None)
 
-        for risk_estimator in self.risk_estimators.values():
-            risk_estimator.estimate(
-                pred, obs, self.acquisition.weights, surr_model,
-                acquisition_name=self.acquisition_name)
+        for risk_estimator_name, risk_estimator in self.risk_estimators.items():
+            if not len(pred) == self.dataset.N:
+                risk = risk_estimator.estimate(
+                    pred, obs,
+                    self.acquisition.weights,
+                    surr_model,
+                    acquisition_name=self.acquisition_name
+                )
+            else: # last acquisition
+                risk = self.estimated_risk['TrueRiskEstimator'][-1]
+
+            print(f'estimator: {risk_estimator_name} risk: {risk:.3f}')
+            self.estimated_risk[risk_estimator_name].append(risk)
+
 
     # @profile
     def step(self, i):
@@ -144,14 +159,14 @@ class Experiment:
         # observe point
         x, _ = self.dataset.observe(idx, with_replacement=with_replacement)
 
-        # predict at point
+        # predict at point - 2d array as later argmax is used
         y_pred = self.model.predict(x, [idx])
+        # y_pred = self.dataset.Y_test_prob[idx].reshape(1, -1) # add another dimension
 
         if self.predictions is None:
             self.predictions = y_pred
         else:
-            self.predictions = np.concatenate(
-                [self.predictions, y_pred], 0)
+            self.predictions = np.concatenate([self.predictions, y_pred], 0)
 
         # update surrogates after acquisition but before risk estimation
         # (and before next loop as before)
