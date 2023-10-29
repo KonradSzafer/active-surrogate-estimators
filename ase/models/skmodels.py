@@ -10,14 +10,12 @@ from ase.loss import RMSELoss, AccuracyLoss, CrossEntropyLoss
 
 class BaseModel:
     """Base class for models."""
-    def __init__(self, cfg, model):
+    def __init__(self, cfg):
         # Set task_type and global_std if not present.
         self.cfg = OmegaConf.merge(
-                dict(cfg),
-                DictConfig(dict(task_type=cfg.get('task_type', 'regression')))
-                )
-
-        self.model = model
+            dict(cfg),
+            DictConfig(dict(task_type=cfg.get('task_type', 'regression')))
+        )
 
     def fit(self, x, y):
         raise NotImplementedError
@@ -45,29 +43,39 @@ class BaseModel:
 
 class SKLearnModel(BaseModel):
     """SKLearn derived models."""
-    def __init__(self, cfg, model):
-        super().__init__(cfg, model)
+    def __init__(self, cfg):
+        super().__init__(cfg)
         self.is_fit = False
+        if cfg.type== 'GradientBoostingClassifier':
+            from sklearn.ensemble import GradientBoostingClassifier
+            self.model = GradientBoostingClassifier()
+        elif cfg.type == 'LogisticRegression':
+            from sklearn.linear_model import LogisticRegression
+            self.model = LogisticRegression()
+        else:
+            raise ValueError(f'Unknown model type {cfg.type}.')
+
 
     def fit(self, x, y, **kwargs):
         if x.ndim == 1:
-            # Sklearn expects x to be NxD
-            x = x[..., np.newaxis]
-
+            x = x[..., np.newaxis] # Sklearn expects x to be NxD
         self.model = self.model.fit(x, y, **kwargs)
         self.is_fit = True
 
-    def predict(self, x, idxs=None, *args, **kwargs):
-        # Sklearn expects x to be NxD
-        predict_proba = self.cfg['task_type'] == 'classification'
 
+    def test(self, x, y, loss_function: callable):
+        y_pred = self.model.predict(x)
+        return loss_function(y_pred, y)
+
+
+    def predict(self, x, idxs=None, *args, **kwargs):
+        predict_proba = True
         return self.predict_sk(x, predict_proba=predict_proba, **kwargs)
 
-    def predict_sk(self, x, predict_proba, **kwargs):
 
+    def predict_sk(self, x, predict_proba, **kwargs):
         if predict_proba:
             y = self.model.predict_proba(x, **kwargs)
         else:
             y = self.model.predict(x, **kwargs)
-
         return y

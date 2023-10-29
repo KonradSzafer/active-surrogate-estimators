@@ -4,7 +4,7 @@ hydra:
   run:
     dir: ${BASE_DIR}/outputs/OpenML/
 dataset:
-  train_proportion: 0.1
+  train_proportion: 1.0
   test_proportion: 0.3
   standardize: false
   name: OpenMLDataset
@@ -27,7 +27,7 @@ experiment:
 risk_estimators:
 - TrueRiskEstimator
 - BiasedRiskEstimator
-- FancyUnbiasedRiskEstimator
+# - FancyUnbiasedRiskEstimator
 # - QuadratureRiskEstimator
 # - TrueUnseenRiskEstimator
 acquisition_functions:
@@ -49,9 +49,9 @@ acquisition:
   - 500
   - 700
 model:
-  keep_constant: true
   name: SKLearnModel
-  efficient: true
+  type: GradientBoostingClassifier
+  # type: LogisticRegression
   calibrated: true
   skip_fit_debug: model.pth
   skip_fit_debug_relative: true
