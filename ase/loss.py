@@ -77,14 +77,16 @@ class FPRLoss:
 
 class BalancedAccuracy:
     def __call__(self, pred, target):
-        pred = np.argmax(pred, axis=1)
+        if pred.ndim == 2:
+            pred = np.argmax(pred, axis=1)
         balanced_accuracy = balanced_accuracy_score(target, pred)
         return balanced_accuracy
 
 
 class BalancedAccuracyLoss:
     def __call__(self, pred, target):
-        pred = np.argmax(pred, axis=1)
+        if pred.ndim == 2:
+            pred = np.argmax(pred, axis=1)
         balanced_accuracy = balanced_accuracy_score(target, pred)
         return 1 - balanced_accuracy
 
