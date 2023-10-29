@@ -49,6 +49,12 @@ class SKLearnModel(BaseModel):
         if cfg.type== 'GradientBoostingClassifier':
             from sklearn.ensemble import GradientBoostingClassifier
             self.model = GradientBoostingClassifier()
+        elif cfg.type == 'RandomForestClassifier':
+            from sklearn.ensemble import RandomForestClassifier
+            self.model = RandomForestClassifier()
+        elif cfg.type == 'DecisionTreeClassifier':
+            from sklearn.tree import DecisionTreeClassifier
+            self.model = DecisionTreeClassifier()
         elif cfg.type == 'LogisticRegression':
             from sklearn.linear_model import LogisticRegression
             self.model = LogisticRegression()

@@ -132,6 +132,8 @@ def main(cfg):
     for ex in experiments.values():
         for k, v in ex.estimated_risk.items():
             average_risks[k] += np.array(v)
+    for risks in average_risks.values():
+        risks /= len(experiments)
 
     for k, v in average_risks.items():
         plt.plot(v, label=k)

@@ -4,23 +4,21 @@ hydra:
   run:
     dir: ${BASE_DIR}/outputs/OpenML/
 dataset:
-  train_proportion: 1.0
+  train_proportion: 0.1
   test_proportion: 0.3
   standardize: false
   name: OpenMLDataset
   dataset_id: 1510
   # dataset_id: 1487
   respect_train_test: true
-  # with_unseen: true
 experiment:
-  n_runs: 1
+  n_runs: 20
   random_seed: -1
   debug: true
   save_data_until: 10
   # loss: TPRLoss
   loss: BalancedAccuracy
   # loss: BalancedAccuracyLoss
-  # loss: CrossEntropyLoss
   log_every: 1
   save_every: 5
   abort_test_after: 1000
@@ -32,8 +30,8 @@ risk_estimators:
 # - TrueUnseenRiskEstimator
 acquisition_functions:
 # - TrueLossAcquisition: null
-- RandomAcquisition: null
-# - ClassifierAcquisitionEntropy: null
+# - RandomAcquisition: null
+- ClassifierAcquisitionEntropy: null
 # - AnySurrogateAcquisitionEntropy: LazySurrEnsemble
 acquisition:
   sample: true
@@ -51,6 +49,8 @@ acquisition:
 model:
   name: SKLearnModel
   type: GradientBoostingClassifier
+  # type: RandomForestClassifier
+  # type: DecisionTreeClassifier
   # type: LogisticRegression
   calibrated: true
   skip_fit_debug: model.pth
