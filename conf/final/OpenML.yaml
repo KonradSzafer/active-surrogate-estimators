@@ -2,7 +2,7 @@
 id: 1
 hydra:
   run:
-    dir: ${BASE_DIR}/outputs/OpenML/
+    dir: ${BASE_DIR}/
 dataset:
   train_proportion: 1.0
   test_proportion: 0.3
@@ -48,8 +48,8 @@ acquisition:
   - 700
 model:
   name: SKLearnModel
-  type: GradientBoostingClassifier
-  # type: RandomForestClassifier
+  # type: GradientBoostingClassifier
+  type: RandomForestClassifier
   # type: DecisionTreeClassifier
   # type: LogisticRegression
   calibrated: true

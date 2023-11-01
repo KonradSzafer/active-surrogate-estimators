@@ -61,11 +61,11 @@ class _Dataset:
 
         self.x_test = self.x[self.test_idxs]
 
-        to_json(
-            dict(
-                train_idxs=self.train_idxs.tolist(),
-                test_idxs=self.test_idxs.tolist()),
-            Path('train_test_split.json'))
+        # to_json(
+        #     dict(
+        #         train_idxs=self.train_idxs.tolist(),
+        #         test_idxs=self.test_idxs.tolist()),
+        #     Path('train_test_split.json'))
 
         if self.cfg.standardize:
             self.standardize()
@@ -320,7 +320,7 @@ class OpenMLDataset(_ActiveTestingDataset):
 
 
     def generate_data(self):
-        datasets_path = str(Path.cwd().parent.parent) + '/datasets/'
+        datasets_path = str(Path.cwd()) + '/datasets/'
         train_df = pd.read_csv(datasets_path + f'{self.dataset_id}-train.csv')
         test_df = pd.read_csv(datasets_path + f'{self.dataset_id}-test.csv')
         with open(datasets_path + f'{self.dataset_id}-stats.json', 'r') as f:
