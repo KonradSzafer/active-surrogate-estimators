@@ -8,6 +8,7 @@ import warnings
 
 import torch
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from ase.experiment import Experiment
@@ -140,6 +141,12 @@ def main(cfg):
     plt.title(f'Active Testing - dataset ID: {dataset.dataset_id}')
     plt.legend()
     plt.show()
+
+    # save acquisition results
+    output_path = os.getcwd() + '/outputs/OpenML/'
+    os.makedirs(output_path, exist_ok=True)
+    df = pd.DataFrame(average_risks)
+    df.to_csv(output_path + f'{cfg.dataset.dataset_id}-surrogate_estimators.csv', index=False)
 
 
 def check_valid(model, dataset):
