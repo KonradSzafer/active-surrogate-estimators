@@ -127,6 +127,8 @@ def main(cfg):
                 acquisition = f'{acquisition}_{n}'
 
     logging.info('Completed all runs.')
+    output_path = os.getcwd() + '/outputs/predictions_surrogate/'
+    os.makedirs(output_path, exist_ok=True)
 
     # average risk accross runs
     average_risks = {k: np.zeros(len(v)) for k, v in experiments[0].estimated_risk.items()}
@@ -141,12 +143,11 @@ def main(cfg):
     plt.title(f'Active Testing - dataset ID: {dataset.dataset_id}')
     plt.legend()
     plt.show()
+    plt.savefig(output_path + f'{cfg.dataset.dataset_id}.png')
 
     # save acquisition results
-    output_path = os.getcwd() + '/outputs/OpenML/'
-    os.makedirs(output_path, exist_ok=True)
     df = pd.DataFrame(average_risks)
-    df.to_csv(output_path + f'{cfg.dataset.dataset_id}-surrogate_estimators.csv', index=False)
+    df.to_csv(output_path + f'{cfg.dataset.dataset_id}.csv', index=False)
 
 
 def check_valid(model, dataset):
