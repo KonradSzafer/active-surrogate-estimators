@@ -74,18 +74,18 @@ def main(cfg):
             # training and testing surrogate model
             loss_function = maps.loss[cfg.experiment.loss]()
             model = maps.model[cfg.model.name](cfg.model)
-            model.fit(dataset.X_train, dataset.Y_train)
-            surr_train_loss = model.test(dataset.X_train, dataset.Y_train, loss_function)
-            surr_test_loss = model.test(dataset.X_test, dataset.Y_test, loss_function)
-            train_loss = loss_function(dataset.Y_train_prob, dataset.Y_train)
-            test_loss = loss_function(dataset.Y_test_prob, dataset.Y_test)
-            print(f'surrogate train loss: {surr_train_loss:.3f}, surrogate test loss: {surr_test_loss:.3f}')
-            print(f'true train loss: {train_loss:.3f}, true test loss: {test_loss:.3f}')
+            # model.fit(dataset.X_train, dataset.Y_train)
+            # surr_train_loss = model.test(dataset.X_train, dataset.Y_train, loss_function)
+            # surr_test_loss = model.test(dataset.X_test, dataset.Y_test, loss_function)
+            # train_loss = loss_function(dataset.Y_train_prob, dataset.Y_train)
+            # test_loss = loss_function(dataset.Y_test_prob, dataset.Y_test)
+            # print(f'surrogate train loss: {surr_train_loss:.3f}, surrogate test loss: {surr_test_loss:.3f}')
+            # print(f'true train loss: {train_loss:.3f}, true test loss: {test_loss:.3f}')
 
-            if not STATS_STATUS:
-                STATS_STATUS = True
-                stats['loss'] = train_loss
-                to_json(stats, 'stats.json')
+            # if not STATS_STATUS:
+            #     STATS_STATUS = True
+            #     stats['loss'] = train_loss
+            #     to_json(stats, 'stats.json')
 
         if run < cfg.experiment.save_data_until:
             hoover.add_data(run, dataset.export())

@@ -160,18 +160,18 @@ class Experiment:
         x, _ = self.dataset.observe(idx, with_replacement=with_replacement)
 
         # predict at point - 2d array as later argmax is used
-        y_pred = self.model.predict(x, [idx])
-        # y_pred = self.dataset.Y_test_prob[idx].reshape(1, -1) # add another dimension
+        # y_pred = self.model.predict(x, [idx])
+        y_pred = self.dataset.Y_test_prob[idx].reshape(1, -1) # add another dimension
 
         if self.predictions is None:
             self.predictions = y_pred
         else:
             self.predictions = np.concatenate([self.predictions, y_pred], 0)
 
-        # update surrogates after acquisition but before risk estimation
+        # update surrogates after acquisition but before risk estimation - this does not work
         # (and before next loop as before)
-        if hasattr(self.acquisition, 'update_surrogate'):
-            self.acquisition.update_surrogate()
+        # if hasattr(self.acquisition, 'update_surrogate'):
+        #     self.acquisition.update_surrogate()
 
         # estimate test risk
         self.estimate_risks()

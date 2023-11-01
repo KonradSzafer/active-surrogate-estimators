@@ -4,15 +4,14 @@ hydra:
   run:
     dir: ${BASE_DIR}/outputs/OpenML/
 dataset:
-  train_proportion: 0.1
+  train_proportion: 1.0
   test_proportion: 0.3
   standardize: false
   name: OpenMLDataset
   dataset_id: 1510
-  # dataset_id: 1487
   respect_train_test: true
 experiment:
-  n_runs: 20
+  n_runs: 1
   random_seed: -1
   debug: true
   save_data_until: 10
@@ -24,14 +23,15 @@ experiment:
   abort_test_after: 1000
 risk_estimators:
 - TrueRiskEstimator
-- BiasedRiskEstimator
-# - FancyUnbiasedRiskEstimator
+# - BiasedRiskEstimator
+- FancyUnbiasedRiskEstimator
 # - QuadratureRiskEstimator
 # - TrueUnseenRiskEstimator
 acquisition_functions:
 # - TrueLossAcquisition: null
 # - RandomAcquisition: null
-- ClassifierAcquisitionEntropy: null
+- SelfSurrogateAcquisitionEntropy: null
+# - ClassifierAcquisitionEntropy: null
 # - AnySurrogateAcquisitionEntropy: LazySurrEnsemble
 acquisition:
   sample: true

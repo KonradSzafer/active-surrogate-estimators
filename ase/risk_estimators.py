@@ -20,8 +20,11 @@ class TrueRiskEstimator(RiskEstimator):
         super().__init__(loss)
 
         idxs = dataset.test_idxs
-        y_true = dataset.y[idxs]
-        y_pred = model.predict(dataset.x[idxs], idxs=idxs)
+        y_true = dataset.Y_test[idxs]
+
+        # y_pred = model.predict(dataset.x[idxs], idxs=idxs)
+        y_pred = dataset.Y_test_prob[idxs]
+
         self.true_loss_vals = self.loss(y_pred, y_true)
         self.true_loss = self.true_loss_vals.mean()
 
@@ -209,7 +212,8 @@ class FullSurrogateASMC(RiskEstimator):
             x_test = self.x_test
             test_idxs = self.test_idxs
 
-        model_predictions = self.model.predict(x_test, idxs=test_idxs)
+        # model_predictions = self.model.predict(x_test, idxs=test_idxs)
+        model_predictions = dataset.Y_test_prob[idxs]
 
         if surrogate is None:
 

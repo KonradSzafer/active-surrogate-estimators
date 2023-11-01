@@ -249,16 +249,7 @@ class _SurrogateAcquisitionBase(_LossAcquisitionBase):
 
         self.surr_class = SurrModel
         self.surr_model = SurrModel(self.surr_cfg)
-
-        if len(self.dataset.train_idxs) > 0:
-            logging.info('Initial surrogate fit b/c on train data.')
-            self.surr_model.fit(*self.dataset.total_observed)
-        else:
-            logging.info('Skipping initial surrogate fit b/c no train data.')
-
-        if self.surr_cfg.get('efficient', False):
-            # make efficient predictions on remaining test data
-            self.surr_model = make_efficient(self.surr_model, self.dataset)
+        self.surr_model.fit(self.dataset.X_train, self.dataset.Y_train)
 
         if surr_cfg.get('lazy', False):
             if (s := self.surr_cfg.get('lazy_schedule', False)) is not False:
@@ -357,7 +348,8 @@ class SelfSurrogateAcquisitionEntropy(
 
     def expected_loss(self, remaining_data, remaining_idxs):
         return entropy_loss(
-            remaining_data, remaining_idxs, self.model, self.surr_model)
+            remaining_data, remaining_idxs, self.model, self.surr_model, self.dataset
+        )
 
 
 class SelfSurrogateAcquisitionSurrogateEntropy(
@@ -368,7 +360,8 @@ class SelfSurrogateAcquisitionSurrogateEntropy(
 
     def expected_loss(self, remaining_data, remaining_idxs):
         return entropy_loss(
-            remaining_data, remaining_idxs, self.surr_model, self.surr_model)
+            remaining_data, remaining_idxs, self.surr_model, self.surr_model, self.dataset
+        )
 
 
 class SelfSurrogateAcquisitionSurrogateMutualInformation(
@@ -449,7 +442,7 @@ class AnySurrogateAcquisitionEntropy(
 
     def expected_loss(self, remaining_data, remaining_idxs):
         return entropy_loss(
-            remaining_data, remaining_idxs, self.model, self.surr_model,
+            remaining_data, remaining_idxs, self.model, self.surr_model, self.dataset,
             cfg=self.cfg)
 
 
@@ -469,15 +462,17 @@ class ClassifierAcquisitionEntropy(_LossAcquisitionBase):
 
     def expected_loss(self, remaining_data, remaining_idxs):
         return entropy_loss(
-            remaining_data, remaining_idxs, self.model, None, T=self.T,
+            remaining_data, remaining_idxs, self.model, None, self.dataset, T=self.T,
             cfg=self.cfg)
 
 
 def entropy_loss(
-        remaining_data, remaining_idxs, model, surr_model=None,
+        remaining_data, remaining_idxs, model, surr_model=None, dataset=None,
         eps=1e-15, T=None, cfg=None, extra_log=False):
 
-    model_pred = model.predict(remaining_data, idxs=remaining_idxs)
+    # model_pred = model.predict(remaining_data, idxs=remaining_idxs)
+    model_pred = dataset.Y_test_prob[remaining_idxs]
+    # use dataset here to get the true loss
 
     if T is not None:
         model_pred = np.exp(np.log(model_pred)/T)
