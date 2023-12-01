@@ -96,6 +96,7 @@ class Experiment:
 
         # For QuadratureRiskEstimator
         surr_model = getattr(self.acquisition, 'surr_model', None)
+        print('surrogate model:', type(surr_model.model))
 
         for risk_estimator_name, risk_estimator in self.risk_estimators.items():
             if not len(pred) == self.dataset.N:
@@ -121,7 +122,6 @@ class Experiment:
         # logging.info(f'Acquiring idx {test_idx}')
 
         self.observe_at_idx(i, test_idx)
-
 
         y = self.dataset.y[self.dataset.test_observed]
         # logging.info(f'DEEEBUUGG  {y.max()}, {i}, {test_idx}, {y.argmax()}')

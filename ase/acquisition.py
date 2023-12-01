@@ -249,6 +249,7 @@ class _SurrogateAcquisitionBase(_LossAcquisitionBase):
 
         self.surr_class = SurrModel
         self.surr_model = SurrModel(self.surr_cfg)
+        print('surrogate model type:', type(self.surr_model))
         self.surr_model.fit(self.dataset.X_train, self.dataset.Y_train)
 
         if surr_cfg.get('lazy', False):
@@ -471,6 +472,8 @@ def entropy_loss(
         eps=1e-15, T=None, cfg=None, extra_log=False):
 
     # model_pred = model.predict(remaining_data, idxs=remaining_idxs)
+
+    print('rem x len', len(remaining_data), 'rem idxs len', len(remaining_idxs))
     model_pred = dataset.Y_test_prob[remaining_idxs]
     # use dataset here to get the true loss
 
@@ -486,8 +489,8 @@ def entropy_loss(
         model_pred[np.isnan(model_pred)] = 1/eps
 
     if surr_model is not None:
-        surr_model_pred = surr_model.predict(
-            remaining_data, idxs=remaining_idxs)
+        # remaining data is already filtered -> no need for remaining_idxs
+        surr_model_pred = surr_model.predict(remaining_data) #, idxs=remaining_idxs)
 
         if T is not None:
             surr_model_pred = np.exp(np.log(surr_model_pred)/T)

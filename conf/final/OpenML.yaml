@@ -8,7 +8,24 @@ dataset:
   test_proportion: 0.3
   standardize: false
   name: OpenMLDataset
-  dataset_id: 1510
+  # dataset_id: 29
+  # dataset_id: 310
+  # dataset_id: 1049
+  # dataset_id: 1050
+  # dataset_id: 1063
+  # dataset_id: 1068
+  # dataset_id: 1462
+  # dataset_id: 1464
+  # dataset_id: 1467
+  # dataset_id: 1480
+  # dataset_id: 1487
+  dataset_id: 1489
+  # dataset_id: 1494
+  # dataset_id: 1504
+  # dataset_id: 1506
+  # dataset_id: 1510
+  # dataset_id: 40981
+  # dataset_id: 45562
   respect_train_test: true
 experiment:
   n_runs: 1
@@ -23,8 +40,9 @@ experiment:
   abort_test_after: 1000
 risk_estimators:
 - TrueRiskEstimator
-# - BiasedRiskEstimator
+- BiasedRiskEstimator
 - FancyUnbiasedRiskEstimator
+- FullSurrogateASMC
 # - QuadratureRiskEstimator
 # - TrueUnseenRiskEstimator
 acquisition_functions:
@@ -49,8 +67,8 @@ acquisition:
 model:
   name: SKLearnModel
   # type: GradientBoostingClassifier
-  type: RandomForestClassifier
-  # type: DecisionTreeClassifier
+  # type: RandomForestClassifier
+  type: DecisionTreeClassifier
   # type: LogisticRegression
   calibrated: true
   skip_fit_debug: model.pth

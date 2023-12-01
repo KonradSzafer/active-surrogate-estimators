@@ -76,6 +76,8 @@ class SKLearnModel(BaseModel):
 
     def predict(self, x, idxs=None, *args, **kwargs):
         predict_proba = True
+        if idxs is not None:
+            x = x[idxs]
         return self.predict_sk(x, predict_proba=predict_proba, **kwargs)
 
 

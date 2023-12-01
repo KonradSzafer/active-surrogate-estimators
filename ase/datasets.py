@@ -58,6 +58,8 @@ class _Dataset:
         # self.train_idxs, self.test_idxs = self.train_test_split(self.N)
         self.train_idxs = np.array([]).astype(int)
         self.test_idxs = np.arange(self.N)
+        self.observed_idxs = np.array([]).astype(int)
+        self.test_remaining = self.test_idxs
 
         self.x_test = self.x[self.test_idxs]
 
@@ -287,12 +289,10 @@ class _ActiveTestingDataset(_Dataset):
 
         Note: For efficiency reasons idx is index in test
         """
-
+        self.observed_idxs = np.append(self.observed_idxs, idx)
         self.test_observed = np.append(self.test_observed, idx)
-        if not with_replacement:
-            self.test_remaining = self.test_remaining[
-                self.test_remaining != idx]
-
+        self.test_remaining = np.setdiff1d(self.test_idxs, self.observed_idxs)
+        print(f'observed: {len(self.observed_idxs)} remaining: {len(self.test_remaining)}')
         return self.x[[idx]], self.y[[idx]]
 
     @property

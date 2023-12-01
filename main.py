@@ -71,10 +71,10 @@ def main(cfg):
 
         # Train model on training data.
         if (not cfg.model.get('keep_constant', False)) or (model is None):
-
-            # training and testing surrogate model
+            # training and testing main model
             loss_function = maps.loss[cfg.experiment.loss]()
             model = maps.model[cfg.model.name](cfg.model)
+            print('model type', type(model.model))
             # model.fit(dataset.X_train, dataset.Y_train)
             # surr_train_loss = model.test(dataset.X_train, dataset.Y_train, loss_function)
             # surr_test_loss = model.test(dataset.X_test, dataset.Y_test, loss_function)
@@ -127,7 +127,7 @@ def main(cfg):
                 acquisition = f'{acquisition}_{n}'
 
     logging.info('Completed all runs.')
-    output_path = os.getcwd() + '/outputs/predictions_surrogate/'
+    output_path = os.getcwd() + '/outputs/predictions_ase/'
     os.makedirs(output_path, exist_ok=True)
 
     # average risk accross runs
