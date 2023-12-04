@@ -213,32 +213,22 @@ class FullSurrogateASMC(RiskEstimator):
             test_idxs = self.test_idxs
 
         # model_predictions = self.model.predict(x_test, idxs=test_idxs)
-        model_predictions = dataset.Y_test_prob[idxs]
+        model_predictions = self.dataset.Y_test_prob[self.dataset.observed_idxs]
+        surr_predictions = surrogate.predict(x_test, idxs=self.dataset.observed_idxs)
 
-        if surrogate is None:
+        # import matplotlib.pyplot as plt
+        # class_1_prob = model_predictions[:, 0]
+        # plt.hist(class_1_prob, bins=10, alpha=0.5, label='class 1')
+        # plt.yscale('log')
+        # plt.title(f'probabilities step: {len(self.dataset.observed_idxs)}/{len(self.dataset.test_idxs)}')
+        # plt.legend(loc='upper right')
+        # plt.show()
 
-            # A bit hacky. Fail silently.
-            # This estimator will only return sensible values for acquisition
-            # strategies that have a surrogate model.
-            # This is ugly like this in the code because
-            # estimators are always applied to all acquisition strategies.
-            surr_predictions = model_predictions
-        else:
-            surr_predictions = surrogate.predict(x_test, idxs=test_idxs)
-
-        if self.task == 'regression':
-            # will return predictions as truth, will raise if used for
-            # loss estimation for now (because model does not predict)
-            # over all datapoints)
-            R = self.loss(model_predictions, surr_predictions).mean()
-        else:
-            eps = 1e-20
-
-            model_predictions = np.clip(model_predictions, eps, 1 - eps)
-            model_predictions /= model_predictions.sum(axis=1, keepdims=True)
-
-            R = -1 * (surr_predictions * np.log(model_predictions)).sum(-1)
-            R = R.mean()
+        eps = 1e-20
+        model_predictions = np.clip(model_predictions, eps, 1 - eps)
+        model_predictions /= model_predictions.sum(axis=1, keepdims=True)
+        R = -1 * (surr_predictions * np.log(model_predictions)).sum(-1)
+        R = R.mean()
 
         return self.return_and_save(R)
 
