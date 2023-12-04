@@ -96,7 +96,6 @@ class Experiment:
 
         # For QuadratureRiskEstimator
         surr_model = getattr(self.acquisition, 'surr_model', None)
-        print('surrogate model:', type(surr_model.model))
 
         for risk_estimator_name, risk_estimator in self.risk_estimators.items():
             if not len(pred) == self.dataset.N:

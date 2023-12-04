@@ -249,8 +249,15 @@ class _SurrogateAcquisitionBase(_LossAcquisitionBase):
 
         self.surr_class = SurrModel
         self.surr_model = SurrModel(self.surr_cfg)
-        print('surrogate model type:', type(self.surr_model))
+
+        # logging.info(f'Surrogate model type: {type(self.surr_model)}')
         self.surr_model.fit(self.dataset.X_train, self.dataset.Y_train)
+
+        from ase.utils import maps
+        loss_function = maps.loss['BalancedAccuracy']()
+        surr_train_loss = self.surr_model.test(self.dataset.X_train, self.dataset.Y_train, loss_function)
+        surr_test_loss = self.surr_model.test(self.dataset.X_test, self.dataset.Y_test, loss_function)
+        logging.info(f'surrogate train loss: {surr_train_loss:.3f}, surrogate test loss: {surr_test_loss:.3f}')
 
         if surr_cfg.get('lazy', False):
             if (s := self.surr_cfg.get('lazy_schedule', False)) is not False:
