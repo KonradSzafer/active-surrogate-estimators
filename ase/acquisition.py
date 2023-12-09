@@ -333,9 +333,17 @@ class _SurrogateAcquisitionBase(_LossAcquisitionBase):
                 # f'>> Finish lazy refit of surrogate in it {self.counter}.')
 
     def acquire(self, update_surrogate=True):
+        # if update_surrogate:
+        #     # self.update_surrogate()
 
-        if update_surrogate:
-            self.update_surrogate()
+        # logging.info(f'updating surrogate model')
+        # X = np.concatenate((
+        #     self.dataset.X_train, self.dataset.X_test[self.dataset.observed_idxs]
+        # ), axis=0)
+        # Y = np.concatenate((
+        #     self.dataset.Y_train, self.dataset.Y_test[self.dataset.observed_idxs]
+        # ), axis=0)
+        # self.surr_model.fit(X, Y)
 
         return super().acquire()
 

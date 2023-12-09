@@ -61,6 +61,14 @@ class SKLearnModel(BaseModel):
         else:
             raise ValueError(f'Unknown model type {cfg.type}.')
 
+        # from sklearn.calibration import CalibratedClassifierCV
+        # self.model = CalibratedClassifierCV(
+        #     self.model,
+        #     method='isotonic',
+        #     # method='sigmoid',
+        #     cv=5
+        # )
+
 
     def fit(self, x, y, **kwargs):
         if x.ndim == 1:
