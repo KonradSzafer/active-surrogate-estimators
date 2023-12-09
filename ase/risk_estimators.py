@@ -218,6 +218,7 @@ class FullSurrogateASMC(RiskEstimator):
 
         # import matplotlib.pyplot as plt
         # class_1_prob = model_predictions[:, 0]
+        # class_1_prob = surr_predictions[:, 0]
         # plt.hist(class_1_prob, bins=10, alpha=0.5, label='class 1')
         # plt.yscale('log')
         # plt.title(f'probabilities step: {len(self.dataset.observed_idxs)}/{len(self.dataset.test_idxs)}')
@@ -226,6 +227,7 @@ class FullSurrogateASMC(RiskEstimator):
 
         eps = 1e-20
         model_predictions = np.clip(model_predictions, eps, 1 - eps)
+        surr_predictions = np.clip(surr_predictions, eps, 1 - eps)
         model_predictions /= model_predictions.sum(axis=1, keepdims=True)
         R = -1 * (surr_predictions * np.log(model_predictions)).sum(-1)
         R = R.mean()

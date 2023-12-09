@@ -319,11 +319,31 @@ class OpenMLDataset(_ActiveTestingDataset):
         super().__init__(cfg)
 
 
+    @staticmethod
+    def _get_dataset_name(datasets_path: str, dataset_id: int):
+        filename_prefix = datasets_path + f'{dataset_id}'
+        print(f'Dataset prefix: {filename_prefix}')
+        if os.path.exists(filename_prefix+'-uci-train.csv'):
+            return filename_prefix + '-uci', 'uci'
+        elif os.path.exists(filename_prefix+'-openml-train.csv'):
+            return filename_prefix + '-openml', 'openml'
+        else:
+            raise ValueError(f'Dataset not found: {filename_prefix}')
+        
+
     def generate_data(self):
         datasets_path = str(Path.cwd()) + '/datasets/'
-        train_df = pd.read_csv(datasets_path + f'{self.dataset_id}-train.csv')
-        test_df = pd.read_csv(datasets_path + f'{self.dataset_id}-test.csv')
-        with open(datasets_path + f'{self.dataset_id}-stats.json', 'r') as f:
+        filename_prefix = datasets_path + f'{self.dataset_id}'
+        dataset_name, self.category = OpenMLDataset._get_dataset_name(
+            datasets_path, self.dataset_id
+        )
+        print(f'Dataset name: {dataset_name.split("/")[-1]}')
+        print(f'Dataset category: {self.category.upper()}')
+    
+        # Read dataset
+        train_df = pd.read_csv(dataset_name + '-train.csv')
+        test_df = pd.read_csv(dataset_name + '-test.csv')
+        with open(dataset_name + '-stats.json', 'r') as f:
             stats = json.load(f)
 
         train_len = int(self.cfg.train_proportion * len(train_df))

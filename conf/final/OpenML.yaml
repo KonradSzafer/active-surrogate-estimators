@@ -32,6 +32,7 @@ experiment:
   random_seed: -1
   debug: true
   save_data_until: 10
+  # loss: CrossEntropyLoss
   # loss: TPRLoss
   loss: BalancedAccuracy
   # loss: BalancedAccuracyLoss
@@ -67,8 +68,8 @@ acquisition:
 model:
   name: SKLearnModel
   # type: GradientBoostingClassifier
-  # type: RandomForestClassifier
-  type: DecisionTreeClassifier
+  type: RandomForestClassifier
+  # type: DecisionTreeClassifier
   # type: LogisticRegression
   calibrated: true
   skip_fit_debug: model.pth
